@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'Inicio.dart';
 import 'main.dart';
 
@@ -7,10 +8,10 @@ class ManhuaDetailScreen extends StatefulWidget {
   final bool isDarkTheme;
 
   const ManhuaDetailScreen({
-    Key? key,
+    super.key,
     required this.manhua,
     required this.isDarkTheme,
-  }) : super(key: key);
+  });
 
   @override
   State<ManhuaDetailScreen> createState() => _ManhuaDetailScreenState();
@@ -18,56 +19,37 @@ class ManhuaDetailScreen extends StatefulWidget {
 
 class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
   late bool isDarkTheme;
-  final TextEditingController _searchController = TextEditingController();
-  late List<String> sortedChapters;
+  late List<Map<String, String>> sortedChapters;
   bool sortDescending = true;
 
   @override
   void initState() {
     super.initState();
     isDarkTheme = widget.isDarkTheme;
-    sortedChapters = List<String>.from(widget.manhua['capitulos']);
+    sortedChapters = List<Map<String, String>>.from(widget.manhua['capitulos']);
     sortChapters();
   }
 
   void sortChapters() {
     sortedChapters.sort((a, b) {
-      final numA = int.tryParse(a.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
-      final numB = int.tryParse(b.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+      final numA =
+          int.tryParse(a['nombre']!.replaceAll(RegExp(r'\D'), '')) ?? 0;
+      final numB =
+          int.tryParse(b['nombre']!.replaceAll(RegExp(r'\D'), '')) ?? 0;
       return sortDescending ? numB.compareTo(numA) : numA.compareTo(numB);
     });
   }
 
-  void showSearchDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Buscar Manhua"),
-        content: TextField(
-          controller: _searchController,
-          decoration: const InputDecoration(hintText: "Escribe el nombre del manhua"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Función de búsqueda no implementada.")),
-              );
-              _searchController.clear();
-            },
-            child: const Text("Buscar"),
-          ),
-          TextButton(
-            onPressed: () {
-              _searchController.clear();
-              Navigator.pop(context);
-            },
-            child: const Text("Cancelar"),
-          ),
-        ],
-      ),
-    );
+  Future<void> _abrirCapitulo(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("No se pudo abrir el capítulo")),
+      );
+    }
   }
 
   @override
@@ -76,30 +58,47 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
     final secondaryColor = isDarkTheme ? Colors.white70 : Colors.black54;
 
     return Scaffold(
-      backgroundColor: isDarkTheme ? const Color(0xFF1E1E1E) : Colors.black,
+      backgroundColor: isDarkTheme ? const Color(0xFF1E1E1E) : Colors.white,
       appBar: AppBar(
-        backgroundColor: isDarkTheme ? const Color(0xFF121212) : Colors.blueGrey,
-        title: Text(widget.manhua['nombre'], style: TextStyle(color: themeColor)),
+        backgroundColor: isDarkTheme
+            ? const Color(0xFF121212)
+            : Colors.blueGrey,
+        title: Text(
+          widget.manhua['nombre'],
+          style: TextStyle(color: themeColor),
+        ),
         iconTheme: IconThemeData(color: themeColor),
         actions: [
-          IconButton(icon: Icon(Icons.search, color: themeColor), onPressed: showSearchDialog),
+          IconButton(
+            icon: Icon(
+              isDarkTheme ? Icons.light_mode : Icons.dark_mode,
+              color: themeColor,
+            ),
+            onPressed: () {
+              setState(() => isDarkTheme = !isDarkTheme);
+            },
+          ),
           TextButton(
-            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen())),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const HomeScreen()),
+            ),
             child: Text("Inicio", style: TextStyle(color: themeColor)),
           ),
           TextButton(
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Biblioteca no implementada")));
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Biblioteca no implementada")),
+              );
             },
             child: Text("Biblioteca", style: TextStyle(color: themeColor)),
           ),
           TextButton(
-            onPressed: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage())),
+            onPressed: () => Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => const LoginPage()),
+            ),
             child: Text("Cerrar sesión", style: TextStyle(color: themeColor)),
-          ),
-          IconButton(
-            icon: Icon(isDarkTheme ? Icons.light_mode : Icons.dark_mode, color: themeColor),
-            onPressed: () => setState(() => isDarkTheme = !isDarkTheme),
           ),
         ],
       ),
@@ -107,94 +106,63 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // INFO PRINCIPAL
-            Container(
-              decoration: BoxDecoration(
-                color: isDarkTheme ? const Color(0xFF2C2C2C) : Colors.grey.shade800,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = constraints.maxWidth < 600;
+                return Container(
+                  decoration: BoxDecoration(
+                    color: isDarkTheme
+                        ? const Color(0xFF2C2C2C)
+                        : Colors.grey.shade200,
                     borderRadius: BorderRadius.circular(8),
-                    child: Image.asset(
-                      widget.manhua['image'],
-                      width: 180,
-                      height: 250,
-                      fit: BoxFit.cover,
-                    ),
                   ),
-                  const SizedBox(width: 24),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                  padding: const EdgeInsets.all(16),
+                  child: isMobile
+                      ? Column(
                           children: [
-                            ...List.generate(
-                              5,
-                              (i) => Icon(
-                                Icons.star,
-                                size: 22,
-                                color: i < widget.manhua['rating'].round() ? Colors.amber : Colors.grey,
+                            Center(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.asset(
+                                  widget.manhua['image'],
+                                  width: 200,
+                                  height: 270,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text('${widget.manhua['rating']}', style: TextStyle(fontSize: 18, color: themeColor)),
+                            const SizedBox(height: 16),
+                            _infoSection(themeColor, secondaryColor),
                           ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text("Rating", style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold)),
-                        Text("Average ${widget.manhua['rating']} / 5", style: TextStyle(color: secondaryColor)),
-                        const SizedBox(height: 6),
-                        Text("Rank", style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold)),
-                        Text("14th, it has 3.9K monthly views", style: TextStyle(color: secondaryColor)),
-                        const SizedBox(height: 6),
-                        Text("Alternative", style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold)),
-                        Text(widget.manhua['alternativo'], style: TextStyle(color: secondaryColor)),
-                        const SizedBox(height: 6),
-                        Text("Genre(s)", style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold)),
-                        Wrap(
-                          spacing: 6,
-                          children: List.generate(
-                            widget.manhua['generos'].length,
-                            (index) => Chip(
-                              backgroundColor: isDarkTheme ? Colors.blueGrey : Colors.grey.shade600,
-                              label: Text(widget.manhua['generos'][index], style: const TextStyle(color: Colors.white)),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
+                        )
+                      : Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade200),
-                              child: const Text("Read First", style: TextStyle(color: Colors.black)),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Image.asset(
+                                widget.manhua['image'],
+                                width: 180,
+                                height: 250,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                            const SizedBox(width: 12),
-                            ElevatedButton(
-                              onPressed: () {},
-                              style: ElevatedButton.styleFrom(backgroundColor: Colors.amber.shade200),
-                              child: const Text("Read Last", style: TextStyle(color: Colors.black)),
+                            const SizedBox(width: 24),
+                            Expanded(
+                              child: _infoSection(themeColor, secondaryColor),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-
-            // SINOPSIS
             const SizedBox(height: 24),
             Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: isDarkTheme ? const Color(0xFF2C2C2C) : Colors.grey.shade800,
+                color: isDarkTheme
+                    ? const Color(0xFF2C2C2C)
+                    : Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.all(16),
@@ -202,25 +170,28 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
                 children: [
                   Text(
                     '📘 Sinopsis',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: themeColor),
-                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: themeColor,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
                   Text(
                     widget.manhua['descripcion'],
-                    style: TextStyle(fontSize: 16, color: secondaryColor),
-                    textAlign: TextAlign.center,
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(color: secondaryColor),
                   ),
                 ],
               ),
             ),
-
-            // CAPÍTULOS
             const SizedBox(height: 24),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: isDarkTheme ? const Color(0xFF2C2C2C) : Colors.grey.shade800,
+                color: isDarkTheme
+                    ? const Color(0xFF2C2C2C)
+                    : Colors.grey.shade200,
                 borderRadius: BorderRadius.circular(8),
               ),
               padding: const EdgeInsets.all(16),
@@ -229,15 +200,30 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('📚 Capítulos', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: themeColor)),
+                      Text(
+                        '📚 Capítulos',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: themeColor,
+                        ),
+                      ),
                       DropdownButton<bool>(
                         value: sortDescending,
-                        dropdownColor: Colors.grey.shade800,
-                        icon: const Icon(Icons.sort, color: Colors.white),
-                        style: const TextStyle(color: Colors.white),
+                        dropdownColor: isDarkTheme
+                            ? Colors.grey[850]
+                            : Colors.grey[300],
+                        icon: Icon(Icons.sort, color: themeColor),
+                        style: TextStyle(color: themeColor),
                         items: const [
-                          DropdownMenuItem(value: true, child: Text('Mayor a menor', style: TextStyle(color: Colors.white))),
-                          DropdownMenuItem(value: false, child: Text('Menor a mayor', style: TextStyle(color: Colors.white))),
+                          DropdownMenuItem(
+                            value: true,
+                            child: Text('Mayor a menor'),
+                          ),
+                          DropdownMenuItem(
+                            value: false,
+                            child: Text('Menor a mayor'),
+                          ),
                         ],
                         onChanged: (value) {
                           setState(() {
@@ -251,23 +237,123 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
                   const SizedBox(height: 10),
                   ...sortedChapters.map((cap) {
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 20),
+                      margin: const EdgeInsets.symmetric(
+                        vertical: 6,
+                        horizontal: 20,
+                      ),
                       decoration: BoxDecoration(
-                        color: isDarkTheme ? const Color(0xFF3C3C3C) : Colors.grey.shade700,
+                        color: isDarkTheme
+                            ? const Color(0xFF3C3C3C)
+                            : Colors.grey.shade400,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: ListTile(
-                        title: Center(child: Text(cap, style: TextStyle(color: themeColor))),
-                        onTap: () {},
+                        title: Center(
+                          child: Text(
+                            cap['nombre']!,
+                            style: TextStyle(color: themeColor),
+                          ),
+                        ),
+                        onTap: () => _abrirCapitulo(cap['url']!),
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _infoSection(Color themeColor, Color secondaryColor) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            ...List.generate(
+              5,
+              (i) => Icon(
+                Icons.star,
+                size: 22,
+                color: i < widget.manhua['rating'].round()
+                    ? Colors.amber
+                    : Colors.grey,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '${widget.manhua['rating']}',
+              style: TextStyle(fontSize: 18, color: themeColor),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Alternative",
+          style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          widget.manhua['alternativo'],
+          style: TextStyle(color: secondaryColor),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          "Genre(s)",
+          style: TextStyle(color: secondaryColor, fontWeight: FontWeight.bold),
+        ),
+        Wrap(
+          spacing: 6,
+          children: List.generate(
+            widget.manhua['generos'].length,
+            (index) => Chip(
+              backgroundColor: isDarkTheme
+                  ? Colors.blueGrey
+                  : Colors.grey.shade600,
+              label: Text(
+                widget.manhua['generos'][index],
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                if (sortedChapters.isNotEmpty) {
+                  _abrirCapitulo(sortedChapters.last['url']!);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber.shade200,
+              ),
+              child: const Text(
+                "Read First",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+            const SizedBox(width: 12),
+            ElevatedButton(
+              onPressed: () {
+                if (sortedChapters.isNotEmpty) {
+                  _abrirCapitulo(sortedChapters.first['url']!);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.amber.shade200,
+              ),
+              child: const Text(
+                "Read Last",
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
