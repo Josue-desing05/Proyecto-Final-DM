@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'Inicio.dart'; // Asegúrate de tener este archivo en /lib/screens
+import 'Inicio.dart'; // Asegúrate de tener este archivo
 
 void main() => runApp(const MyApp());
 
@@ -11,16 +11,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Registro de Usuarios',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        scaffoldBackgroundColor: const Color(0xFFF5F3EF),
-        fontFamily: 'Segoe UI',
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: const Color(0xFF121212),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          hintStyle: const TextStyle(color: Colors.black45),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        textTheme: const TextTheme(
+          bodyMedium: TextStyle(color: Colors.white),
+        ),
       ),
       home: const LoginPage(),
     );
   }
 }
 
-// Mapa simulado de usuarios
+// Simulación de usuarios
 Map<String, String> usuarios = {'admin': 'admin'};
 
 class LoginPage extends StatefulWidget {
@@ -44,9 +54,9 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Credenciales incorrectas")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Credenciales incorrectas")),
+      );
     }
   }
 
@@ -61,39 +71,27 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'Login',
-                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+                'LOGIN',
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white),
               ),
               const SizedBox(height: 32),
               TextField(
                 controller: userController,
-                decoration: InputDecoration(
-                  hintText: 'Nombre de usuario',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(hintText: 'Nombre de usuario'),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: passController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Contraseña',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(hintText: 'Contraseña'),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -102,21 +100,21 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                   onPressed: login,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue.shade700,
+                    backgroundColor: Colors.blueAccent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: const Text(
-                    'LOG IN',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    'INGRESAR',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),
               const SizedBox(height: 12),
               TextButton(
                 onPressed: goToRegister,
-                child: const Text("¿No tienes cuenta? Crear una"),
+                child: const Text("¿No tienes cuenta? Crear una", style: TextStyle(color: Colors.white70)),
               ),
             ],
           ),
@@ -163,40 +161,29 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF121212),
       appBar: AppBar(
         title: const Text("Crear Cuenta"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
       ),
       body: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 32.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: newUserController,
-                decoration: InputDecoration(
-                  hintText: 'Nuevo usuario',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(hintText: 'Nuevo usuario'),
               ),
               const SizedBox(height: 16),
               TextField(
                 controller: newPassController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  hintText: 'Nueva contraseña',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
+                style: const TextStyle(color: Colors.black),
+                decoration: const InputDecoration(hintText: 'Nueva contraseña'),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -205,14 +192,14 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: ElevatedButton(
                   onPressed: register,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green.shade700,
+                    backgroundColor: Colors.greenAccent.shade700,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: const Text(
                     'REGISTRAR',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
                   ),
                 ),
               ),
