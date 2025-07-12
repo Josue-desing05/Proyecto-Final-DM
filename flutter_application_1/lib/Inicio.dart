@@ -786,7 +786,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     TextField(
                       controller: searchController,
                       style: TextStyle(
-                        color: isDarkTheme ? Colors.white : Colors.black,
+                        color: isDarkTheme ? Colors.black : Colors.black,
                       ),
                       decoration: InputDecoration(
                         hintText: 'Buscar manhua...',
