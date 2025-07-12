@@ -165,7 +165,7 @@ class _RegisterPageState extends State<RegisterPage> {
       appBar: AppBar(
         title: const Text("Crear Cuenta"),
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.white, 
       ),
       body: Center(
         child: SingleChildScrollView(
