@@ -651,13 +651,15 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
-  int currentPage = 0;
+////controladores y estado
+  int currentPage = 0;  
   final PageController _pageController = PageController(viewportFraction: 0.6);
   bool isDarkTheme = true;
 
+///Metodo buil() de honeScreen
   @override
   Widget build(BuildContext context) {
-    final theme = isDarkTheme ? ThemeData.dark() : ThemeData.light();
+    final theme = isDarkTheme ? ThemeData.dark() : ThemeData.light(); ///se define el tema en modo oscuro
 
     return Theme(
       data: theme,
@@ -668,7 +670,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ? const Color(0xFF121212)
               : Colors.blueGrey,
           title: const Text('PatoScan'),
-          actions: [
+          actions: [ ///botones de la barra de acciones
             IconButton(
               icon: const Icon(Icons.search),
               onPressed: () => showSearchDialog(),
@@ -763,6 +765,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+/// en laopcion para buscar manhus muestra un diálogo de búsqueda que permite al usuario buscar manhuas por nombre
+  /// y muestra los resultados en una lista que se puede seleccionar para ver los detalles
   void showSearchDialog() {
     final combinedList = [...manhuaData, ...latestUpdates];
     final TextEditingController searchController = TextEditingController();
@@ -868,6 +872,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+//muestra el título de la sección 
   Widget sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -904,7 +909,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Expanded(
           child: SizedBox(
             height: 270,
-            child: PageView.builder(
+            child: PageView.builder( /// crea un carrusel en horizontal de manhuas populares 
               controller: _pageController,
               itemCount: manhuaData.length,
               itemBuilder: (context, index) {
@@ -914,7 +919,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ManhuaDetailScreen(
+                        builder: (_) => ManhuaDetailScreen( //al hacer clic en un manhua, se abre la pantalla de detalles
                           manhua: manhua,
                           isDarkTheme: isDarkTheme,
                         ),
@@ -978,12 +983,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
-  } // tu método existente
+  } 
 
   Widget latestUpdatesSection(BuildContext context) {
     final updates = latestUpdates;
 
-    return GridView.builder(
+    return GridView.builder( // crea una cuadrícula de actualizaciones recientes
       physics: const NeverScrollableScrollPhysics(),
       shrinkWrap: true,
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1067,99 +1072,4 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
-} // tu método existente
-
-class ManhuaSearchDelegate extends SearchDelegate {
-  final List<Map<String, dynamic>> manhuaList;
-  final bool isDarkTheme;
-
-  ManhuaSearchDelegate(this.manhuaList, this.isDarkTheme);
-
-  @override
-  ThemeData appBarTheme(BuildContext context) {
-    return isDarkTheme ? ThemeData.dark() : ThemeData.light();
-  }
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [
-      IconButton(icon: const Icon(Icons.clear), onPressed: () => query = ''),
-    ];
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    return IconButton(
-      icon: const Icon(Icons.arrow_back),
-      onPressed: () => close(context, null),
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    final results = manhuaList
-        .where(
-          (manhua) =>
-              manhua['nombre'].toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
-
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (context, index) {
-        final manhua = results[index];
-        return ListTile(
-          leading: Image.asset(
-            manhua['image'],
-            width: 50,
-            height: 70,
-            fit: BoxFit.cover,
-          ),
-          title: Text(manhua['nombre']),
-          subtitle: Text('Capítulo: ${manhua['capitulos'].first['nombre']}'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => ManhuaDetailScreen(
-                  manhua: manhua,
-                  isDarkTheme: isDarkTheme,
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final suggestions = manhuaList
-        .where(
-          (manhua) =>
-              manhua['nombre'].toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
-
-    return ListView.builder(
-      itemCount: suggestions.length,
-      itemBuilder: (context, index) {
-        final manhua = suggestions[index];
-        return ListTile(
-          leading: Image.asset(
-            manhua['image'],
-            width: 50,
-            height: 70,
-            fit: BoxFit.cover,
-          ),
-          title: Text(manhua['nombre']),
-          onTap: () {
-            query = manhua['nombre'];
-            showResults(context);
-          },
-        );
-      },
-    );
-  }
-}
+} 
