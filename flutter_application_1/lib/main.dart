@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Registro de Usuarios',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData.dark().copyWith( // tema oscuro por defecto
         scaffoldBackgroundColor: const Color(0xFF121212),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
@@ -67,6 +67,7 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+// interfaz de usuario del login
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,13 +125,13 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class RegisterPage extends StatefulWidget {
+class RegisterPage extends StatefulWidget { 
   const RegisterPage({super.key});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
-
+/// Esta clase maneja el registro de nuevos usuarios
 class _RegisterPageState extends State<RegisterPage> {
   final newUserController = TextEditingController();
   final newPassController = TextEditingController();
@@ -157,7 +158,7 @@ class _RegisterPageState extends State<RegisterPage> {
       );
     }
   }
-
+// interfaz de usuario del registro
   @override
   Widget build(BuildContext context) {
     return Scaffold(

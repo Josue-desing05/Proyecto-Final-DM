@@ -3,6 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'Inicio.dart';
 import 'main.dart';
 
+// Pantalla de detalles del manhua
 class ManhuaDetailScreen extends StatefulWidget {
   final Map<String, dynamic> manhua;
   final bool isDarkTheme;
@@ -17,6 +18,7 @@ class ManhuaDetailScreen extends StatefulWidget {
   State<ManhuaDetailScreen> createState() => _ManhuaDetailScreenState();
 }
 
+// Estado de la pantalla de detalles del manhua
 class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
   late bool isDarkTheme;
   late List<Map<String, String>> sortedChapters;
@@ -51,13 +53,13 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
       );
     }
   }
-
+/// Esta función abre el capítulo en el navegador externo
   @override
   Widget build(BuildContext context) {
     final themeColor = isDarkTheme ? Colors.white : Colors.black;
     final secondaryColor = isDarkTheme ? Colors.white70 : Colors.black54;
 
-    return Scaffold(
+    return Scaffold(    // fondo de la pantalla
       backgroundColor: isDarkTheme ? const Color(0xFF1E1E1E) : Colors.white,
       appBar: AppBar(
         backgroundColor: isDarkTheme
@@ -102,7 +104,7 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
+      body: SingleChildScrollView( 
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
@@ -267,6 +269,8 @@ class _ManhuaDetailScreenState extends State<ManhuaDetailScreen> {
     );
   }
 
+/// Esta sección muestra la información del manhua
+  // y los botones para leer el primer y último capítulo
   Widget _infoSection(Color themeColor, Color secondaryColor) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
